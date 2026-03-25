@@ -7,7 +7,7 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 
 TOKEN = "8789607245:AAFheb_dkC4et4VwDWtVQmRdfxTThjCKYvk"
-
+ADMIN_CHAT_ID = -100XXXXXXXXX
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
@@ -100,7 +100,14 @@ async def get_phone(message: types.Message, state: FSMContext):
     data["phone"] = phone
 
     # ===== LEAD (бу ерда сақлаш / юбориш) =====
-    print("NEW LEAD:", data)
+    text = f"""
+    Yangi lead
+    Kurs: {data['course']}
+    Narx: {data['price']}
+    Hudud: {data['location']}
+    Telefon: {data['phone']}
+    """
+    await bot.send_message(ADMIN_CHAT_ID,text)
 
     await message.answer(
         "✅ So‘rovingiz qabul qilindi.\nTez orada o‘quv markazlar siz bilan bog‘lanadi."
