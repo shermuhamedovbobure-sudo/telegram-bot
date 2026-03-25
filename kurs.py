@@ -7,7 +7,8 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.storage.memory import MemoryStorage
 
 TOKEN = "8789607245:AAFheb_dkC4et4VwDWtVQmRdfxTThjCKYvk"
-ADMIN_CHAT_ID = -100XXXXXXXXX
+ADMIN_CHAT_ID = -1003780960836
+
 bot = Bot(token=TOKEN)
 dp = Dispatcher(storage=MemoryStorage())
 
@@ -19,7 +20,6 @@ class Form(StatesGroup):
     phone = State()
 
 # ===== KEYBOARDS =====
-
 course_kb = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text="Ingliz tili")],
@@ -54,7 +54,7 @@ location_kb = ReplyKeyboardMarkup(
 phone_kb = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text="📱 Telefonni yuborish", request_contact=True)],
-        [KeyboardButton(text="⏭ O‘tkazib yuborish")]
+        [KeyboardButton(text="⏭️ O‘tkazib yuborish")]
     ],
     resize_keyboard=True
 )
@@ -65,33 +65,33 @@ async def start(message: types.Message, state: FSMContext):
     await message.answer("📚 O‘quv kursini tanlang:", reply_markup=course_kb)
     await state.set_state(Form.course)
 
-# ===== 1. COURSE =====
+# ===== COURSE =====
 @dp.message(Form.course)
 async def get_course(message: types.Message, state: FSMContext):
     await state.update_data(course=message.text)
     await message.answer("💰 Oylik narxni tanlang:", reply_markup=price_kb)
     await state.set_state(Form.price)
 
-# ===== 2. PRICE =====
+# ===== PRICE =====
 @dp.message(Form.price)
 async def get_price(message: types.Message, state: FSMContext):
     await state.update_data(price=message.text)
     await message.answer("📍 Hududni tanlang:", reply_markup=location_kb)
     await state.set_state(Form.location)
 
-# ===== 3. LOCATION =====
+# ===== LOCATION =====
 @dp.message(Form.location)
 async def get_location(message: types.Message, state: FSMContext):
     await state.update_data(location=message.text)
     await message.answer("📞 Telefon raqamingizni yuboring:", reply_markup=phone_kb)
     await state.set_state(Form.phone)
 
-# ===== 4. PHONE =====
+# ===== PHONE =====
 @dp.message(Form.phone)
 async def get_phone(message: types.Message, state: FSMContext):
     if message.contact:
         phone = message.contact.phone_number
-    elif message.text == "⏭ O‘tkazib yuborish":
+    elif message.text == "⏭️ O‘tkazib yuborish":
         phone = "Berilmadi"
     else:
         phone = message.text
@@ -99,24 +99,24 @@ async def get_phone(message: types.Message, state: FSMContext):
     data = await state.get_data()
     data["phone"] = phone
 
-    # ===== LEAD (бу ерда сақлаш / юбориш) =====
+    # ===== LEAD =====
     text = f"""
-    Yangi lead
-    Kurs: {data['course']}
-    Narx: {data['price']}
-    Hudud: {data['location']}
-    Telefon: {data['phone']}
-    """
-    await bot.send_message(ADMIN_CHAT_ID,text)
+📥 Yangi lead
 
-    await message.answer(
-        "✅ So‘rovingiz qabul qilindi.\nTez orada o‘quv markazlar siz bilan bog‘lanadi."
-    )
+📚 Kurs: {data['course']}
+💰 Narx: {data['price']}
+📍 Hudud: {data['location']}
+📞 Telefon: {data['phone']}
+"""
 
+    await bot.send_message(ADMIN_CHAT_ID, text)
+
+    await message.answer("✅ So‘rovingiz qabul qilindi.")
     await state.clear()
 
 # ===== RUN =====
 async def main():
+    await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
